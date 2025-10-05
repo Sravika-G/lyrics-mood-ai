@@ -1,0 +1,17 @@
+streamlitstreamlit==1.32.2
+
+torchtorch==2.3.0
+
+transformerstransformers==4.40.1
+
+sentencepiecesentencepiece==0.2.0
+
+langdetect==1.0.9youtube-transcript-api==0.6.2
+
+youtube-transcript-apispotipy==2.23.0
+
+spotipyopenai==1.33.0
+
+openailangdetect==1.0.9
+
+langdetect==1.0.9
