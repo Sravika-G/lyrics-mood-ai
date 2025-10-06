@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [main]
 jobs:
-  build:
+  smoke-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,7 +16,8 @@ jobs:
           python-version: '3.11'
       - name: Install dependencies
         run: pip install -r requirements.txt
-      - name: Import sanity check
+      - name: Import dependencies and modules
         run: |
-          python -c "import streamlit, transformers, torch, sentencepiece, youtube_transcript_api, spotipy, openai"
+          python -c "import streamlit, transformers, torch, sentencepiece, langdetect, youtube_transcript_api, spotipy, openai"
+          python -c "import services.summarizer, services.mood_classifier, services.recommender, services.transcribe"
 

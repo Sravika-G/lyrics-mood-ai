@@ -4,13 +4,6 @@ from langdetect import detect, DetectorFactory
 
 DetectorFactory.seed = 42
 
-_summarizer = pipeline(
-    "summarization",
-    model="sshleifer/distilbart-cnn-12-6",
-    device=-1,
-    framework="pt"
-)
-
 LANG_CODE_TO_MODEL = {
     "hi": "Helsinki-NLP/opus-mt-hi-en",
     "te": "Helsinki-NLP/opus-mt-te-en",
@@ -25,6 +18,20 @@ LANG_CODE_TO_MODEL = {
 }
 
 _translators = {}
+_summarizer = None
+
+
+def get_summarizer():
+    global _summarizer
+    if _summarizer is None:
+        _summarizer = pipeline(
+            "summarization",
+            model="sshleifer/distilbart-cnn-12-6",
+            device=-1,
+            framework="pt"
+        )
+    return _summarizer
+
 
 def get_translator(lang_code):
     if lang_code not in LANG_CODE_TO_MODEL:
@@ -40,6 +47,7 @@ def get_translator(lang_code):
             return None
     return _translators[lang_code]
 
+
 def chunk_text(text: str, chunk_size: int) -> List[str]:
     text = text.strip()
     if len(text) <= chunk_size:
@@ -52,6 +60,7 @@ def chunk_text(text: str, chunk_size: int) -> List[str]:
         chunks.append(chunk)
         start = end
     return chunks
+
 
 def translate_to_english(text: str, lang_code: str) -> str:
     translator = get_translator(lang_code)
@@ -69,6 +78,7 @@ def translate_to_english(text: str, lang_code: str) -> str:
 
 SUMMARY_WORDS = 120
 
+
 def summarize_lyrics(text: str) -> str:
     try:
         if not text or not text.strip():
@@ -82,16 +92,17 @@ def summarize_lyrics(text: str) -> str:
             resolved_text = translate_to_english(text, lang)
         chunks = chunk_text(resolved_text, 2500)
         summaries = []
+        summarizer = get_summarizer()
         for chunk in chunks:
             try:
-                out = _summarizer(chunk, max_length=130, min_length=30, do_sample=False)
+                out = summarizer(chunk, max_length=130, min_length=30, do_sample=False)
                 summaries.append(out[0]["summary_text"])
             except Exception:
                 summaries.append("[Summarization failed for chunk]")
         meta = " ".join(summaries)
         if len(meta.split()) > SUMMARY_WORDS:
             try:
-                meta_summary = _summarizer(meta, max_length=SUMMARY_WORDS+20, min_length=SUMMARY_WORDS-20, do_sample=False)
+                meta_summary = summarizer(meta, max_length=SUMMARY_WORDS+20, min_length=SUMMARY_WORDS-20, do_sample=False)
                 return meta_summary[0]["summary_text"]
             except Exception:
                 return meta
