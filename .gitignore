@@ -1,12 +1,7 @@
-.venv/.env
-
-__pycache__/.venv/
-
-.streamlit/__pycache__/
-
-.DS_Store.streamlit/
-
-.vscode/.DS_Store
-
-.env.vscode/
+.venv/
+__pycache__/
+.streamlit/
+.DS_Store
+.vscode/
+.env
 
